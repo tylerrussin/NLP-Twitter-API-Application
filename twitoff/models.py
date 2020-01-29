@@ -9,9 +9,15 @@ class User(DB.Model):
     # Tweets Ids are ordinal ints, so we can fetch most recent tweets
     newest_tweet_id = DB.Column(DB.BigInteger, nullable=False)
 
+    def __repr__(self):
+        return 'User {}>'.format(self.name)
+
 class Tweet(DB.Model):
     id = DB.Column(DB.BigInteger, primary_key=True)
     text = DB.Column(DB.Unicode(280), nullable=False)
-    #user_id = DB.Column(DB.Integer, DB.ForeignKey('user.id'), nullable=False)
-    #user = DB.relationship("User", backref=DB.backref('tweets', lazy=True))
+    user_id = DB.Column(DB.Integer, DB.ForeignKey('user.id'), nullable=False)
+    user = DB.relationship("User", backref=DB.backref('tweets', lazy=True))
     embedding = DB.Column(DB.PickleType, nullable=False)
+
+    def __repr__(self):
+        return '<Tweet {}>'.format(self.text)
