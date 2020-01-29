@@ -35,9 +35,6 @@ def add_user(name):
                                     tweet_mode='extended',
                                     since_id=db_user.newest_tweet_id)
 
-
-
-
         if tweets:
             db_user.newest_tweet_id = tweets[0].id
 
