@@ -59,7 +59,7 @@ def add_default_users(users=TWITTER_USERS):
         add_user(user)
 
 
-def update_all_user():
+def update_all_users():
 
     for user in User.query.all():
         add_user(user.name)
