@@ -42,7 +42,7 @@ def add_user(name):
             #
             emb = BASILICA.embed_sentence(tweet.full_text, model='twitter')
             #import pdb; pdb.set_trace()
-            db_tweet = Tweet(id=tweet.id, text=tweet.full_text, embedding=emb)
+            db_tweet = Tweet(id=tweet.id, text=tweet.full_text[:500], embedding=emb)
             db_user.tweets.append(db_tweet)
             DB.session.add(db_tweet)
     except Exception as e:
