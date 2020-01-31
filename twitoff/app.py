@@ -60,6 +60,10 @@ def create_app():
                 user2 if prediction else user1)
         return render_template('prediction.html', title='Prediction', message=message)
 
+    @app.route('/test')
+    def test():
+        return 'This is a test'
+
     @app.route('/reset')
     def reset():
         DB.drop_all()
