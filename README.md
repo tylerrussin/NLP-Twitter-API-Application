@@ -8,6 +8,9 @@ With the increase in data driven teqnicest being developed methods to integrate 
 
 Users can use the interavtive front end
 
+
+![alt text](https://github.com/[Tyler9937]/[twitoff-app]/Screenshot(88).png?raw=true)
+
 ## Modles used
 
 This appliction uses a Random Forest Classifer that is trained in real time on tokenized tweet data
