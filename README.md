@@ -1,20 +1,23 @@
-# Twitter Tweet Predicter Web Application
+# Twitter Tweet Predictor Web Application
+ 
 
 # Introduction
-
-With the increase in data driven teqnicest being developed methods to integrate such models within web application enviorments is a vital necessity. Data flows through websites and with propper sytems in place that data can be used to cator to the user experiene or be extracted for the solving of real world problems. This demo application aims to be an example of this relationship as it takes in data in real time from the twitter api and learns to predict which twitter user is most likely to say a given phrase.
-
+ 
+With the increase in data driven techniques being developed methods to integrate such models within web application environments is a vital necessity. Data flows through websites and with proper systems in place that data can be used to cater to the user experience or be extracted for the solving of real world problems. This demo application aims to be an example of this relationship. The system takes in data in real time from the twitter api and learns to predict which twitter user is most likely to say a given phrase. THis process uses Natural Language Processing to dissect text and logistic regression to make predictions
+ 
 ## Usage
-
-Users can use the interavtive front end
-
-
-![alt text](https://github.com/[Tyler9937]/[twitoff-app]/Screenshot(88).png?raw=true)
-
-## Modles used
-
-This appliction uses a Random Forest Classifer that is trained in real time on tokenized tweet data
-
+ 
+Users can use the interactive front end to search any public twitter account and upload that account’s historical tweet data. Of the uploaded user accounts two users can then be selected, the model will then predict which user is most likely to say a provided tweet.
+ 
+ 
+![alt text](frontend_screenshot.png?raw=true)
+ 
+## Models used
+ 
+This application uses a Logistic Regression model that is trained in real time on tokenized tweet data.
+ 
+The following is a sample of the model’s code
+ 
 ```python
 def predict_user(user1_name, user2_name, tweet_text):
     user1 = User.query.filter(User.name == user1_name).one()
@@ -29,9 +32,8 @@ def predict_user(user1_name, user2_name, tweet_text):
     #import pdb; pdb.set_trace()
     return log_reg.predict(np.array(tweet_embedding).reshape(1,-1))
 ```
-
-
-
-
+ 
 ## License
 [MIT](https://choosealicense.com/licenses/mit/)
+ 
+

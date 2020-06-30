@@ -8,11 +8,16 @@ from .predict import predict_user
 
 load_dotenv()
 
+
+# Initializing the Flask App
 def create_app():
     app = Flask(__name__)
     app.config['SQLALCHEMY_DATABASE_URI'] = config('DATABASE_URL')
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     DB.init_app(app)
+
+    # Adding defualt users
+    add_default_users()
 
     @app.route('/index')
     def index():
@@ -25,7 +30,7 @@ def create_app():
     @app.route('/')
     def root():
         DB.create_all()
-        return render_template('base.html', title='Home', users = User.query.all())
+        return render_template('base.html', title='Home', users=User.query.all())
 
     @app.route('/user', methods=['POST'])
     @app.route('/user/<name>', methods=['GET'])
@@ -36,7 +41,7 @@ def create_app():
                 add_user(name)
                 message = "User {} successfuly added!".format(name)
 
-            tweets = User.query.filter(User.name==name).one().tweets
+            tweets = User.query.filter(User.name == name).one().tweets
         except Exception as e:
             message = 'Error adding {}: {}'.format(name, e)
             tweets = []
@@ -60,21 +65,20 @@ def create_app():
                 user2 if prediction else user1)
         return render_template('prediction.html', title='Prediction', message=message)
 
-    @app.route('/test')
-    def test():
-        return 'This is a test'
-
+    # Resets the heroku database
     @app.route('/reset')
     def reset():
         DB.drop_all()
         DB.create_all()
         return render_template('base.html', title='Reset database!')
 
+    # Uploades twitter data to database
     @app.route('/update')
     def update():
         update_all_users()
         return render_template('base.html', users=User.query.all(), title='All Tweets updated!')
 
+    # Default users to be uploaded on start
     @app.route('/add_default')
     def add_default():
         add_default_users()
