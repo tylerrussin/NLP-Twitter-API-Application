@@ -31,10 +31,7 @@ def create_app():
     def root():
         DB.create_all()
 
-        # # Adding defualt users
-        # add_default_users()
-
-        return render_template('base.html', title='Home', users=User.query.all())
+        return render_template('base.html', title='Home', users=User.query.all(), comparisons=recent_list)
 
     @app.route('/user', methods=['POST'])
     @app.route('/user/<name>', methods=['GET'])
