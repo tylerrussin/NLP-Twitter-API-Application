@@ -9,7 +9,7 @@ from .predict import predict_user
 load_dotenv()
 
 recent_list = []
-add_default_users(['elonmusk', 'nasa', 'sadserver', 'austen', 'lockeedmartin'])
+
 
 # Initializing the Flask App
 def create_app():
