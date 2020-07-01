@@ -9,6 +9,7 @@ from .predict import predict_user
 load_dotenv()
 
 recent_list = []
+add_default_users(['elonmusk', 'nasa', 'sadserver', 'austen', 'lockeedmartin'])
 
 # Initializing the Flask App
 def create_app():
@@ -30,7 +31,6 @@ def create_app():
     @app.route('/')
     def root():
         DB.create_all()
-        add_default_users(['elonmusk', 'nasa', 'sadserver', 'austen', 'lockeedmartin'])
 
         return render_template('base.html', title='Home', users=User.query.all(), comparisons=recent_list)
 
