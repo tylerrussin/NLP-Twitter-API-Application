@@ -31,8 +31,8 @@ def create_app():
     def root():
         DB.create_all()
 
-        # Adding defualt users
-        add_default_users()
+        # # Adding defualt users
+        # add_default_users()
 
         return render_template('base.html', title='Home', users=User.query.all())
 

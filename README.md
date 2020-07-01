@@ -10,7 +10,7 @@ With the increase in data driven techniques being developed methods to integrate
 Users can use the interactive front end to search any public twitter account and upload that account’s historical tweet data. Of the uploaded user accounts two users can then be selected, the model will then predict which user is most likely to say a provided tweet.
  
  
-![alt text](frontend_screenshot.png?raw=true)
+![](frontend_screenshot.png)
  
 ## Models used
  
