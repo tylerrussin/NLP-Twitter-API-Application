@@ -8,9 +8,13 @@ With the increase in data driven techniques being developed methods to integrate
 ## Usage
  
 Users can use the interactive front end to search any public twitter account and upload that account’s historical tweet data. Of the uploaded user accounts two users can then be selected, the model will then predict which user is most likely to say a provided tweet.
+
+WARNING!!! the app uses free heroku services. Load times will be slow!!!
+Check out the app [HERE!](https://tyler9937-twitoff.herokuapp.com/)
+
  
  
-![](twitoff/images/frontend_screenshot.png)
+![](https://github.com/Tyler9937/twitoff-app/blob/master/twitoff/images/frontend_screenshot.png)
  
 ## Models used
  
