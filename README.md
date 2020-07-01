@@ -12,9 +12,7 @@ Users can use the interactive front end to search any public twitter account and
 WARNING!!! the app uses free heroku services. Load times will be slow!!!
 Check out the app [HERE!](https://tyler9937-twitoff.herokuapp.com/)
 
- 
- 
-![](https://github.com/Tyler9937/twitoff-app/blob/master/twitoff/images/frontend_screenshot.png)
+
  
 ## Models used
  
