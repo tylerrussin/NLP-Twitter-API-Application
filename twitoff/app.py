@@ -8,6 +8,7 @@ from .predict import predict_user
 
 load_dotenv()
 
+recent_list = []
 
 # Initializing the Flask App
 def create_app():
@@ -16,8 +17,7 @@ def create_app():
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     DB.init_app(app)
 
-    # Adding defualt users
-    add_default_users()
+
 
     @app.route('/index')
     def index():
@@ -30,6 +30,10 @@ def create_app():
     @app.route('/')
     def root():
         DB.create_all()
+
+        # Adding defualt users
+        add_default_users()
+
         return render_template('base.html', title='Home', users=User.query.all())
 
     @app.route('/user', methods=['POST'])
@@ -63,6 +67,9 @@ def create_app():
             message = '"{}" is more likely to be said by {} than {}'.format(
                 request.values['tweet_text'], user1 if prediction else user2,
                 user2 if prediction else user1)
+            
+            recent_list.append(message)
+
         return render_template('prediction.html', title='Prediction', message=message)
 
     # Resets the heroku database
