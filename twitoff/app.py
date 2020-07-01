@@ -75,7 +75,7 @@ def create_app():
     def reset():
         DB.drop_all()
         DB.create_all()
-        add_default_users()
+        
         return render_template('base.html', title='Reset database!')
 
     # Uploades twitter data to database
