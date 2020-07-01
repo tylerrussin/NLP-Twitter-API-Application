@@ -30,6 +30,7 @@ def create_app():
     @app.route('/')
     def root():
         DB.create_all()
+        add_default_users()
 
         return render_template('base.html', title='Home', users=User.query.all(), comparisons=recent_list)
 
