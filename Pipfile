@@ -1,20 +1,17 @@
 [[source]]
-name = "pypi"
 url = "https://pypi.org/simple"
 verify_ssl = true
+name = "pypi"
+
+[packages]
+install = "*"
+basilica = "*"
+tweepy = "*"
+numpy = "*"
+scikit-learn = "*"
+flask = "*"
 
 [dev-packages]
 
-[packages]
-flask = "*"
-flask-sqlalchemy = "*"
-basilica = "*"
-tweepy = "*"
-python-dotenv = "*"
-python-decouple = "*"
-scikit-learn = "*"
-gunicorn = "*"
-psycopg2 = "*"
-
 [requires]
-python_version = "3.6"
+python_version = "3.9"
