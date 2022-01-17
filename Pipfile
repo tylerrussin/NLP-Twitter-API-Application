@@ -4,14 +4,12 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-install = "*"
-basilica = "*"
-tweepy = "*"
-numpy = "*"
-scikit-learn = "*"
+psycopg2 = "*"
 flask = "*"
+tweepy = "*"
+basilica = "*"
 
 [dev-packages]
 
 [requires]
-python_version = "3.9"
+python_version = "3.7"
