@@ -1,0 +1,144 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: Verdana, Geneva, Tahoma, sans-serif;
+  display: grid;
+}
+/* entire container with everything */
+.container {
+  display: grid;
+  width: 100vw;
+  height: 100vh;
+  grid-template-columns: 10vw 1fr 1fr;
+  grid-template-rows: 10vh 1fr 1fr 10vh;
+  gap: 7px;
+  padding: 10px;
+}
+.container div {
+  padding: 10px;
+  border: 1px solid #000000;
+}
+.header {
+  grid-column-start: 2;
+  grid-column-end: 4;
+}
+
+.sidebar {
+  grid-row-start: 1;
+  grid-row-end: span 4;
+  margin-left: -10px;
+}
+/* logo */
+.center {
+  display: block;
+  margin-left: -15%;
+  margin-right: auto;
+  width: 10%;
+  padding-bottom: 20vh;
+}
+/* Icons in the navbar */
+a {
+  color: rgb(109, 108, 108);
+  text-decoration: none;
+  font-size: 3rem;
+  display: block;
+  text-align: center;
+  padding: 5px;
+
+  transition: all 0.3s ease;
+}
+/* remove bullets next to icons */
+ul {
+  list-style-type: none;
+}
+
+/* sidebar hover */
+.sidebar a:hover {
+  background-color: rgba(248, 187, 74, 0.4);
+  padding-left: 1px;
+  padding-right: 0px;
+}
+.backgroundbox {
+  display: grid;
+  position: absolute;
+  width: 88.9%;
+  height: 100%;
+  right: 0px;
+  top: 106px;
+  background: rgba(140, 140, 141, 0.4);
+  box-shadow: 0px 32px 24px rgba(135, 128, 213, 0.05),
+    0px 0px 1px rgba(0, 0, 0, 0.04);
+  backdrop-filter: blur(5px);
+}
+/* left of the page */
+.content-left {
+  grid-row-start: 2;
+  grid-row-end: span 3;
+  position: relative;
+  bottom: 220px;
+  background: white;
+}
+/* right of the page */
+.content-right {
+  grid-row-start: 2;
+  grid-row-end: span 3;
+  position: relative;
+  bottom: 220px;
+  background: white;
+}
+
+.footer {
+  grid-column: 1/4;
+}
+
+.header {
+  text-align: center;
+  font-weight: bold;
+  font-size: 1.4rem;
+}
+
+/* buttons in the header */
+.button-header {
+  display: inline-flexbox;
+  height: 1.8rem;
+  background: rgba(161, 161, 161, 0.5);
+  border: none;
+  border-radius: 7px;
+  overflow: hidden;
+  font-family: "Quicksand", sans-serif;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  margin-left: 10px;
+  position: relative;
+  left: 40rem;
+  bottom: 0.6rem;
+}
+/* header button hover color */
+.button-header:hover {
+  background: rgba(143, 142, 142, 0.5);
+}
+/* header buttons color when clicked */
+.button-header:active {
+  background: rgba(161, 161, 161, 0.7);
+}
+/* text inside the reset database button */
+.reset-button-text {
+  display: inline-flex;
+  align-items: center;
+  padding: 0 10px;
+  color: white;
+  height: 100%;
+}
+/* text inside the update tweets button */
+.update-button-text {
+  display: inline-flex;
+  align-items: center;
+  padding: 0 10px;
+  color: white;
+  height: 100%;
+}
