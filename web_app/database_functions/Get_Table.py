@@ -2,7 +2,6 @@ import psycopg2
 
 def get_table(elephantsql_client, command):
     '''Returns a list of values from table'''
-    
     cur = elephantsql_client.cursor()
     try:
         # Execute commands in order

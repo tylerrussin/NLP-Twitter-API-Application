@@ -2,7 +2,6 @@ import re
 
 def clean_tweet(tweet):
     '''Cleaning raw tweet for modeling'''
-
     tweet = tweet.lower()
     emoji_list = tweet.split()                  # Creating list to reference emojis
     tweet = re.sub('[^a-z 0-9]', '', tweet)
