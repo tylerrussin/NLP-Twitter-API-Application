@@ -87,6 +87,8 @@ def create_app():
     def index():
         '''Main templete of web application'''
         
+        global output_message
+
         # Database connection
         elephantsql_client = connect(ELEPHANTSQL_DATABASE, 
                                      ELEPHANTSQL_USERNAME, 
