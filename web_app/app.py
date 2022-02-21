@@ -1,5 +1,5 @@
 from os import getenv
-from flask import Flask, render_template, request, redirect
+from flask import Flask, render_template, request, redirect, make_response
 import tweepy 
 
 from web_app.Generate_Tweets import generate_tweets
