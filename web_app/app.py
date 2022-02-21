@@ -37,43 +37,43 @@ def create_app():
 
     @app.route('/reset')
     def reset():
-        '''Removes all tables from the SQL server'''
+        '''Removes all user added tables from the SQL server'''
+
         global output_message
-
-        # Database connection
-        elephantsql_client = connect(ELEPHANTSQL_DATABASE, ELEPHANTSQL_USERNAME, ELEPHANTSQL_PASSWORD, ELEPHANTSQL_HOST)
-
         start_users = ['@justinbieber', '@nasa', '@rihanna', '@joebiden']
-
-        # Removing all user tweet tables within SQL server
-        command = '''SELECT username FROM usernames_table'''
-        usernames = get_table(elephantsql_client, command)
-        for user in usernames:
-            if user not in start_users:  
-                command = '''DROP TABLE {}_tweets_table;'''.format(user[1:])
-                # Execute commands in order
-                drop_table(elephantsql_client, command)
-                command = '''DELETE FROM usernames_table WHERE username='{}';'''.format(user)
-                sql_command(elephantsql_client, command)
-
-
-        # Removing comparision table within SQL server
-        command = '''DROP TABLE comparision_table;'''
-        drop_table(elephantsql_client, command)
-
-
-        # Initiating comparisions table
-        command = '''CREATE TABLE IF NOT EXISTS comparision_table (comparision_str       varchar(500))'''
-        create_table(elephantsql_client, command)
-
         start_comps = ['"never say never" is more likely to be said by @justinbieber than @rihanna', 
                        '"The #Cygnus spacecraft is safely in orbit" is more likely to be said by @nasa than @joebiden']
 
+        # Database connection
+        elephantsql_client = connect(ELEPHANTSQL_DATABASE, 
+                                     ELEPHANTSQL_USERNAME, 
+                                     ELEPHANTSQL_PASSWORD, 
+                                     ELEPHANTSQL_HOST)
 
+        
+        # Commands
+        usernames_command = '''SELECT username FROM usernames_table'''
+        drop_comp_command = '''DROP TABLE comparision_table;'''
+        create_comp_command = '''CREATE TABLE IF NOT EXISTS comparision_table (comparision_str       varchar(500))'''
+
+        # Delete user added Twitter user tables
+        usernames = get_table(elephantsql_client, usernames_command)
+        for user in usernames:
+            if user not in start_users:  
+                drop_user_command = '''DROP TABLE {}_tweets_table;'''.format(user[1:])                      # Drop twitter user tables
+                remove_user_command = '''DELETE FROM usernames_table WHERE username='{}';'''.format(user)   # Remove twitter username
+
+                drop_table(elephantsql_client, drop_user_command)
+                sql_command(elephantsql_client, remove_user_command)
+
+
+        drop_table(elephantsql_client, drop_comp_command)       # Removing comparision table within SQL server
+        create_table(elephantsql_client, create_comp_command)   # Initiating comparisions table
+
+        # Insert past comparisions into table
         for comp_message in start_comps:
-            # Adding recent comparisions
-            command = "INSERT INTO comparision_table (comparision_str) VALUES ('{}')".format(comp_message)
-            single_insert(elephantsql_client, command)
+            comp_command = "INSERT INTO comparision_table (comparision_str) VALUES ('{}')".format(comp_message)
+            single_insert(elephantsql_client, comp_command)
 
         # Close the database connection
         elephantsql_client.close()
@@ -116,98 +116,105 @@ def create_app():
     @app.route('/add_user', methods=['POST'])
     def add_user():
         '''Add new user to database'''
+
         global output_message
         name = request.values['user_name']
 
         if name == '':
             output_message = 'No username entered...'
+            return redirect('/')
+
+        name = name.lower()     # Lowercase and @ symbol parsing
+        if name[0] != '@':
+            name = '@' + name
+
+        # Database connection
+        elephantsql_client = connect(ELEPHANTSQL_DATABASE, 
+                                     ELEPHANTSQL_USERNAME, 
+                                     ELEPHANTSQL_PASSWORD, 
+                                     ELEPHANTSQL_HOST)
+
+        # Commands
+        usernames_command = '''SELECT username FROM usernames_table'''
+        create_table_command = '''CREATE TABLE IF NOT EXISTS {}_tweets_table (tweet       varchar(500))'''.format(name[1:])
+        insert_username_command = "INSERT INTO usernames_table (username) VALUES ('{}')".format(name)
+        get_tweets_command = '''SELECT tweet FROM {}_tweets_table'''.format(name[1:])
+        drop_table_command = '''DROP TABLE {}_tweets_table;'''.format(name[1:])
+        delete_username_command = '''DELETE FROM usernames_table WHERE username='{}';'''.format(name)
+
+        usernames = get_table(elephantsql_client, usernames_command)    #   Current saved twitter users
+        
+        if name not in usernames:
+            try:
+                create_table(elephantsql_client, create_table_command)              # Building Inital user tweet table
+                generate_tweets(elephantsql_client, TWITTER, name)                  # Populate database
+                single_insert(elephantsql_client, insert_username_command)          # Adding user to the usernames table
+
+                user_tweets = get_table(elephantsql_client, get_tweets_command)     # Test if user has enough tweets
+                output_message = '{} successfully added to database'.format(name)
+
+                # Twitter API returned less than 3000 tweets
+                if len(user_tweets) < 3000:
+
+                    # Revert table changes
+                    output_message = 'API could not retrive enough tweets for analysis'
+                    drop_table(elephantsql_client, drop_table_command)
+                    sql_command(elephantsql_client, delete_username_command)
+
+            except:
+                # Failed to get twitter data
+                output_message = 'API failed to find inputed twitter username'
+                drop_table(elephantsql_client, drop_table_command)                # Revert table changes  
+                sql_command(elephantsql_client, delete_username_command)
+                
         else:
-            # Input processing
-            name = name.lower()
-            if name[0] != '@':
-                name = '@' + name
+            output_message = 'Twitter user already in database'
 
-            # Database connection
-            elephantsql_client = connect(ELEPHANTSQL_DATABASE, ELEPHANTSQL_USERNAME, ELEPHANTSQL_PASSWORD, ELEPHANTSQL_HOST)
-
-            # Does user already exist
-            command = '''SELECT username FROM usernames_table'''
-            usernames = get_table(elephantsql_client, command)
-            
-            if name not in usernames:
-                try:
-                    # Building Inital user tweet table
-                    command = '''CREATE TABLE IF NOT EXISTS {}_tweets_table (tweet       varchar(500))'''.format(name[1:])
-                    create_table(elephantsql_client, command)
-
-                    # Populate database
-                    generate_tweets(elephantsql_client, TWITTER, name)
-
-                    # Adding user to the usernames table
-                    query = "INSERT INTO usernames_table (username) VALUES ('{}')".format(name)
-                    single_insert(elephantsql_client, query)
-
-                    # Test if user has enough tweets
-                    command = '''SELECT tweet FROM {}_tweets_table'''.format(name[1:])
-                    user_tweets = get_table(elephantsql_client, command)
-                    output_message = '{} successfully added to database'.format(name)
-
-                    if len(user_tweets) < 3000:
-                        output_message = 'API could not retrive enough tweets for analysis'
-                        command = '''DROP TABLE {}_tweets_table;'''.format(name[1:])
-                        drop_table(elephantsql_client, command)
-                        command = '''DELETE FROM usernames_table WHERE username='{}';'''.format(name)
-                        sql_command(elephantsql_client, command)
-
-                except:
-                    # Failed to get twitter data
-                    command = '''DROP TABLE {}_tweets_table;'''.format(name[1:])
-                    drop_table(elephantsql_client, command)
-                    command = '''DELETE FROM usernames_table WHERE username='{}';'''.format(name)
-                    sql_command(elephantsql_client, command)
-                    output_message = 'API failed to find inputed twitter username'
-            
-            # Close the connection
-            elephantsql_client.close()
-            print('Connection is closed.')
+        # Close the connection
+        elephantsql_client.close()
+        print('Connection is closed.')
 
         return redirect('/')
 
 
     @app.route('/compare', methods=['POST'])
     def compare():
-        '''Classifier inputed tweet to be one of the two inputed users'''
-        global output_message
+        '''Classify inputed tweet'''
 
+        global output_message
         user1 = request.values['user1']
         user2 = request.values['user2']
         tweet_text = request.values['tweet_text']
 
         if user1 == user2:
             output_message = 'Cannot compare a user to themselves'
+            return redirect('/')
+     
+        # Database connection
+        elephantsql_client = connect(ELEPHANTSQL_DATABASE, 
+                                     ELEPHANTSQL_USERNAME, 
+                                     ELEPHANTSQL_PASSWORD, 
+                                     ELEPHANTSQL_HOST)
+
+        # Classifing tweet
+        prediction = predict_user(elephantsql_client, user1, user2, tweet_text)
+        if user1 == prediction:
+            winner = user1
+            loser = user2
         else:
-            # Database connection
-            elephantsql_client = connect(ELEPHANTSQL_DATABASE, ELEPHANTSQL_USERNAME, ELEPHANTSQL_PASSWORD, ELEPHANTSQL_HOST)
+            winner = user2
+            loser = user1
 
-            # Classifing tweet
-            prediction = predict_user(elephantsql_client, user1, user2, tweet_text)
-            if user1 == prediction:
-                winner = user1
-                loser = user2
-            else:
-                winner = user2
-                loser = user1
-            output_message = '"{}" is more likely to be said by {} than {}'.format(
-                request.values['tweet_text'], winner, loser)
+        output_message = '"{}" is more likely to be said by {} than {}'.format(request.values['tweet_text'], winner, loser)
+        comp_message = '"{}" is more likely to be said by {} than {}'.format(request.values['tweet_text'][:50] + '...', winner, loser)
 
-            comp_message = '"{}" is more likely to be said by {} than {}'.format(request.values['tweet_text'][:50] + '...', winner, loser)
-            # Adding recent comparisions
-            query = "INSERT INTO comparision_table (comparision_str) VALUES ('{}')".format(comp_message)
-            single_insert(elephantsql_client, query)
+        # Command
+        comp_command = "INSERT INTO comparision_table (comparision_str) VALUES ('{}')".format(comp_message)
+        single_insert(elephantsql_client, comp_command)                                                         # Insert comparision
 
-            # Close the connection
-            elephantsql_client.close()
-            print('Connection is closed.')
+        # Close the connection
+        elephantsql_client.close()
+        print('Connection is closed.')
 
         return redirect('/')
 
