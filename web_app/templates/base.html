@@ -44,7 +44,6 @@
           <div>
             <h2>Users</h2>
             <p>Enter Twitter usernames below</p> 
-            <p>Reset Database takes 20 seconds to call Twitter API. Add User takes five seconds to call Twitter API</p>
             {% for user in users %}
             <a href="https://twitter.com/{{ user[1:] }}" target="_blank"><span class="stack">{{ user }}</span></a>
             {% endfor %}

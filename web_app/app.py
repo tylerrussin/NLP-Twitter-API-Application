@@ -30,6 +30,7 @@ ELEPHANTSQL_HOST = getenv('ELEPHANTSQL_HOST')
 
 output_message = '' # Global output message
 
+
 def create_app():
     '''Main app'''
     app = Flask(__name__)
@@ -42,45 +43,32 @@ def create_app():
         # Database connection
         elephantsql_client = connect(ELEPHANTSQL_DATABASE, ELEPHANTSQL_USERNAME, ELEPHANTSQL_PASSWORD, ELEPHANTSQL_HOST)
 
+        start_users = ['@justinbieber', '@nasa', '@rihanna', '@joebiden']
+
         # Removing all user tweet tables within SQL server
         command = '''SELECT username FROM usernames_table'''
         usernames = get_table(elephantsql_client, command)
         for user in usernames:
-            command = '''DROP TABLE {}_tweets_table;'''.format(user[1:])
-            # Execute commands in order
-            drop_table(elephantsql_client, command)
+            if user not in start_users:  
+                command = '''DROP TABLE {}_tweets_table;'''.format(user[1:])
+                # Execute commands in order
+                drop_table(elephantsql_client, command)
+                command = '''DELETE FROM usernames_table WHERE username='{}';'''.format(user)
+                sql_command(elephantsql_client, command)
 
-        # Removing usernames table within SQL server
-        command = '''DROP TABLE usernames_table;'''
-        drop_table(elephantsql_client, command)
 
         # Removing comparision table within SQL server
         command = '''DROP TABLE comparision_table;'''
         drop_table(elephantsql_client, command)
 
-        # Initiating usernames table
-        command = '''CREATE TABLE IF NOT EXISTS usernames_table (username       varchar(30))'''
-        create_table(elephantsql_client, command)
 
         # Initiating comparisions table
         command = '''CREATE TABLE IF NOT EXISTS comparision_table (comparision_str       varchar(500))'''
         create_table(elephantsql_client, command)
 
-        start_users = ['@justinbieber', '@nasa', '@rihanna', '@joebiden']
         start_comps = ['"never say never" is more likely to be said by @justinbieber than @rihanna', 
                        '"The #Cygnus spacecraft is safely in orbit" is more likely to be said by @nasa than @joebiden']
 
-        # Building Inital user tweet table
-        for user in start_users:
-            command = '''CREATE TABLE IF NOT EXISTS {}_tweets_table (tweet       varchar(500))'''.format(user[1:])
-            create_table(elephantsql_client, command)
-
-            # Populate database
-            generate_tweets(elephantsql_client, TWITTER, user)
-
-            # Adding user to the usernames table
-            query = "INSERT INTO usernames_table (username) VALUES ('{}')".format(user)
-            single_insert(elephantsql_client, query)
 
         for comp_message in start_comps:
             # Adding recent comparisions
@@ -98,21 +86,31 @@ def create_app():
     @app.route('/')
     def index():
         '''Main templete of web application'''
+        
         # Database connection
-        elephantsql_client = connect(ELEPHANTSQL_DATABASE, ELEPHANTSQL_USERNAME, ELEPHANTSQL_PASSWORD, ELEPHANTSQL_HOST)
+        elephantsql_client = connect(ELEPHANTSQL_DATABASE, 
+                                     ELEPHANTSQL_USERNAME, 
+                                     ELEPHANTSQL_PASSWORD, 
+                                     ELEPHANTSQL_HOST)
 
-        # Retriving users and recent comparisions
-        command = '''SELECT username FROM usernames_table'''
-        usernames = get_table(elephantsql_client, command)
+        # Commands
+        usernames_command = '''SELECT username FROM usernames_table'''
+        comparisions_command = '''SELECT comparision_str FROM comparision_table'''
 
-        command = '''SELECT comparision_str FROM comparision_table'''
-        comparisions = get_table(elephantsql_client, command)
+        # Retrive Tables
+        usernames = get_table(elephantsql_client, usernames_command)
+        comparisions = get_table(elephantsql_client, comparisions_command)
 
         # Close the connection
         elephantsql_client.close()
         print('Connection is closed.')
 
-        return render_template('base.html', title='Compare Twitter Users', users=usernames, users2=usernames[::-1], comparisons=comparisions[::-1], message=output_message)
+        return render_template('base.html', 
+                               title='Compare Twitter Users', 
+                               users=usernames,                     # Populates current usernames
+                               users2=usernames[::-1],
+                               comparisons=comparisions[::-1],      # Populates recent comparisions
+                               message=output_message)              # Returns global ouptut message
 
 
     @app.route('/add_user', methods=['POST'])
