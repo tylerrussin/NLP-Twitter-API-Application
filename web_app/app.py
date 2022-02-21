@@ -66,6 +66,27 @@ def create_app():
         command = '''CREATE TABLE IF NOT EXISTS comparision_table (comparision_str       varchar(500))'''
         create_table(elephantsql_client, command)
 
+        start_users = ['@justinbieber', '@nasa', '@rihanna', '@joebiden']
+        start_comps = ['"never say never" is more likely to be said by @justinbieber than @rihanna', 
+                       '"The #Cygnus spacecraft is safely in orbit" is more likely to be said by @nasa than @joebiden']
+
+        # Building Inital user tweet table
+        for user in start_users:
+            command = '''CREATE TABLE IF NOT EXISTS {}_tweets_table (tweet       varchar(500))'''.format(user[1:])
+            create_table(elephantsql_client, command)
+
+            # Populate database
+            generate_tweets(elephantsql_client, TWITTER, user)
+
+            # Adding user to the usernames table
+            query = "INSERT INTO usernames_table (username) VALUES ('{}')".format(user)
+            single_insert(elephantsql_client, query)
+
+        for comp_message in start_comps:
+            # Adding recent comparisions
+            command = "INSERT INTO comparision_table (comparision_str) VALUES ('{}')".format(comp_message)
+            single_insert(elephantsql_client, command)
+
         # Close the database connection
         elephantsql_client.close()
         print('Connection is closed.')
