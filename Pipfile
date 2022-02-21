@@ -9,6 +9,7 @@ tweepy = "*"
 psycopg2 = "*"
 pandas = "*"
 scikit-learn = "*"
+flask-testing = "*"
 
 [dev-packages]
 
