@@ -1,5 +1,5 @@
 from os import getenv
-from flask import Flask, render_template, request, redirect, make_response
+from flask import Flask, render_template, request, redirect
 import tweepy 
 
 from web_app.Generate_Tweets import generate_tweets
@@ -40,7 +40,11 @@ def create_app():
         '''Removes all user added tables from the SQL server'''
 
         global output_message
-        start_users = ['@justinbieber', '@nasa', '@rihanna', '@joebiden']
+        start_users = ['@justinbieber', 
+                       '@nasa', 
+                       '@rihanna', 
+                       '@joebiden']
+                       
         start_comps = ['"never say never" is more likely to be said by @justinbieber than @rihanna', 
                        '"The #Cygnus spacecraft is safely in orbit" is more likely to be said by @nasa than @joebiden']
 
