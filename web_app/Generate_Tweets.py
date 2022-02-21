@@ -1,6 +1,6 @@
 import tweepy
-from  functions.Clean_Tweet import clean_tweet
-from database_functions.Single_Insert import single_insert
+from  web_app.functions.Clean_Tweet import clean_tweet
+from web_app.database_functions.Single_Insert import single_insert
 
 def generate_tweets(elephantsql_client, TWITTER, user):
     """ Calling Twitter API, adding tweets to user database """
