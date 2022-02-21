@@ -11,6 +11,8 @@ from web_app.database_functions.Single_Insert import single_insert
 from web_app.database_functions.SQL_Command import sql_command
 from web_app.functions.Predict_User import predict_user
 
+
+# Connect to twitter API
 TWITTER_CONSUMER_API_KEY = getenv('TWITTER_CONSUMER_API_KEY')
 TWITTER_CONSUMER_API_SECRET = getenv('TWITTER_CONSUMER_API_SECRET')
 TWITTER_ACCESS_TOKEN = getenv('TWITTER_ACCESS_TOKEN')
@@ -20,20 +22,21 @@ TWITTER_AUTH = tweepy.OAuthHandler(TWITTER_CONSUMER_API_KEY,TWITTER_CONSUMER_API
 TWITTER_AUTH.set_access_token(TWITTER_ACCESS_TOKEN, TWITTER_ACCESS_TOKEN_SECRET)
 TWITTER = tweepy.API(TWITTER_AUTH)
 
+# Connect to SQL database
 ELEPHANTSQL_DATABASE = getenv('ELEPHANTSQL_DATABASE')
 ELEPHANTSQL_USERNAME = getenv('ELEPHANTSQL_USERNAME')
 ELEPHANTSQL_PASSWORD = getenv('ELEPHANTSQL_PASSWORD')
 ELEPHANTSQL_HOST = getenv('ELEPHANTSQL_HOST')
 
-output_message = 'test'
+output_message = '' # Global output message
 
 def create_app():
+    '''Main app'''
     app = Flask(__name__)
 
     @app.route('/reset')
     def reset():
         '''Removes all tables from the SQL server'''
-
         global output_message
 
         # Database connection
@@ -70,11 +73,14 @@ def create_app():
         output_message = 'Databases reset'
         return redirect('/')
 
+
     @app.route('/')
     def index():
+        '''Main templete of web application'''
         # Database connection
         elephantsql_client = connect(ELEPHANTSQL_DATABASE, ELEPHANTSQL_USERNAME, ELEPHANTSQL_PASSWORD, ELEPHANTSQL_HOST)
 
+        # Retriving users and recent comparisions
         command = '''SELECT username FROM usernames_table'''
         usernames = get_table(elephantsql_client, command)
 
@@ -85,17 +91,19 @@ def create_app():
         elephantsql_client.close()
         print('Connection is closed.')
 
-        return render_template('base.html', title='Home', users=usernames, comparisons=comparisions[::-1], message=output_message)
+        return render_template('base.html', title='Compare Twitter Users', users=usernames, users2=usernames[::-1], comparisons=comparisions[::-1], message=output_message)
+
 
     @app.route('/add_user', methods=['POST'])
     def add_user():
-
+        '''Add new user to database'''
         global output_message
         name = request.values['user_name']
 
         if name == '':
-            output_message = 'Must enter a twitter user'
+            output_message = 'No username entered...'
         else:
+            # Input processing
             name = name.lower()
             if name[0] != '@':
                 name = '@' + name
@@ -124,6 +132,7 @@ def create_app():
                     command = '''SELECT tweet FROM {}_tweets_table'''.format(name[1:])
                     user_tweets = get_table(elephantsql_client, command)
                     output_message = '{} successfully added to database'.format(name)
+
                     if len(user_tweets) < 3000:
                         output_message = 'API could not retrive enough tweets for analysis'
                         command = '''DROP TABLE {}_tweets_table;'''.format(name[1:])
@@ -137,7 +146,7 @@ def create_app():
                     drop_table(elephantsql_client, command)
                     command = '''DELETE FROM usernames_table WHERE username='{}';'''.format(name)
                     sql_command(elephantsql_client, command)
-                    output_message = 'API failed to find inputed user'
+                    output_message = 'API failed to find inputed twitter username'
             
             # Close the connection
             elephantsql_client.close()
@@ -145,9 +154,10 @@ def create_app():
 
         return redirect('/')
 
+
     @app.route('/compare', methods=['POST'])
     def compare():
-
+        '''Classifier inputed tweet to be one of the two inputed users'''
         global output_message
 
         user1 = request.values['user1']
@@ -160,6 +170,7 @@ def create_app():
             # Database connection
             elephantsql_client = connect(ELEPHANTSQL_DATABASE, ELEPHANTSQL_USERNAME, ELEPHANTSQL_PASSWORD, ELEPHANTSQL_HOST)
 
+            # Classifing tweet
             prediction = predict_user(elephantsql_client, user1, user2, tweet_text)
             if user1 == prediction:
                 winner = user1
