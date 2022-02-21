@@ -8,6 +8,7 @@ from web_app.database_functions.Get_Table import get_table
 from web_app.database_functions.Drop_Table import drop_table
 from web_app.database_functions.Create_Table import create_table
 from web_app.database_functions.Single_Insert import single_insert
+from web_app.database_functions.SQL_Command import sql_command
 
 TWITTER_CONSUMER_API_KEY = getenv('TWITTER_CONSUMER_API_KEY')
 TWITTER_CONSUMER_API_SECRET = getenv('TWITTER_CONSUMER_API_SECRET')
@@ -23,6 +24,7 @@ ELEPHANTSQL_USERNAME = getenv('ELEPHANTSQL_USERNAME')
 ELEPHANTSQL_PASSWORD = getenv('ELEPHANTSQL_PASSWORD')
 ELEPHANTSQL_HOST = getenv('ELEPHANTSQL_HOST')
 
+output_message = 'test'
 
 def create_app():
     app = Flask(__name__)
@@ -30,6 +32,8 @@ def create_app():
     @app.route('/reset')
     def reset():
         '''Removes all tables from the SQL server'''
+
+        global output_message
 
         # Database connection
         elephantsql_client = connect(ELEPHANTSQL_DATABASE, ELEPHANTSQL_USERNAME, ELEPHANTSQL_PASSWORD, ELEPHANTSQL_HOST)
@@ -62,6 +66,7 @@ def create_app():
         elephantsql_client.close()
         print('Connection is closed.')
 
+        output_message = 'Databases reset'
         return redirect('/')
 
     @app.route('/')
@@ -79,10 +84,12 @@ def create_app():
         elephantsql_client.close()
         print('Connection is closed.')
 
-        return render_template('base.html', title='Home', users=usernames, comparisons=comparisions)
+        return render_template('base.html', title='Home', users=usernames, comparisons=comparisions, message=output_message)
 
     @app.route('/add_user', methods=['POST'])
     def add_user():
+
+        global output_message
         name = request.values['user_name']
         name = name.lower()
         if name[0] != '@':
@@ -111,19 +118,22 @@ def create_app():
                 # Test if user has enough tweets
                 command = '''SELECT tweet FROM {}_tweets_table'''.format(name[1:])
                 user_tweets = get_table(elephantsql_client, command)
+                output_message = '{} successfully added to database'.format(name)
                 if len(user_tweets) < 3000:
                     output_message = 'API could not retrive enough tweets for analysis'
+                    command = '''DROP TABLE {}_tweets_table;'''.format(name[1:])
+                    drop_table(elephantsql_client, command)
+                    command = '''DELETE FROM usernames_table WHERE username='{}';'''.format(name)
+                    sql_command(elephantsql_client, command)
 
             except:
                 # Failed to get twitter data
                 command = '''DROP TABLE {}_tweets_table;'''.format(name[1:])
                 drop_table(elephantsql_client, command)
+                command = '''DELETE FROM usernames_table WHERE username='{}';'''.format(name)
+                sql_command(elephantsql_client, command)
                 output_message = 'API failed to find inputed user'
-
-        # make an output message. display it under add user button
         
-
-
         # Close the connection
         elephantsql_client.close()
         print('Connection is closed.')
