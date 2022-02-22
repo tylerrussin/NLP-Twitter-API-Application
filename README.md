@@ -4,6 +4,10 @@
 
 The NLP Twitter API application aims to create an ecosystem of calling the Twitter API, saving Twitter API responses into a SQL database, and referencing the SQL database to classify the Twitter data using logistic regression. The application allows users to input valid Twitter usernames and text information to be used to compare which Twitter users are more likely to tweet a given message.
 
+**Gallery**
+
+![](assets/img/gallery.png)
+
 ### Usage
 
 **Python Notebooks**
