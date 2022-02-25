@@ -14,8 +14,8 @@ The NLP Twitter API application aims to create an ecosystem of calling the Twitt
 
 Located in the “notebooks” directory of this repository are the following “.ipynb” files:
 
-- database_creation.ipynb
-- modeling.ipynb
+-	database_creation.ipynb
+-	modeling.ipynb
 
 These notebooks explore the data processing and SQL database construction of this project. The “database_creation.ipynb” contains work done on the connections built to the Twitter API and SQL database. The “modeling.ipynb” contains work done on handling Twitter API timeline data as well as data cleaning and modeling.
 
