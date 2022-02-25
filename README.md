@@ -23,6 +23,8 @@ These notebooks explore the data processing and SQL database construction of thi
 
 The baseline work done within the python notebooks has contributed to the creation of a Flask website hosted on Heroku. The web application allows users to add new Twitter usernames to the SQL database, reference a given Twitter user’s timeline page, input artificial tweet text, compare the likelihood of Twitter users writing a given tweet, observe recent comparisons, and reset the SQL database. The structure of the web application consists of a base “app.py” file that contains the routes of the flask app, a “base.html” file that hosts the website front-end, and various functions contributing to the processes of the above-listed features.
 
+**Please allow roughly 30 seconds for the server to boot up when clicking the link below**
+
 The deployed web application can be interacted with [Here](https://nlp-twitter-api-application.herokuapp.com/)
 
 # Overview of Twitter API and Tweet Classification Process
